@@ -53,7 +53,7 @@ export function EditorPanel() {
             <div key={e.index} className="edit-card">
               <div>
                 <div className="edit-title">
-                  {ui('suggested', lang)}: {pick(e.note, lang)}
+                  {ui('suggestedEdit', lang)}: {pick(e.note, lang)}
                 </div>
                 <div className="edit-diff">
                   <span className="ansi-31">- {e.find.trim()}</span>

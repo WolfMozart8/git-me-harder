@@ -28,9 +28,3 @@ export const levelById = (id: string) => LEVELS.find((l) => l.id === id);
 export function nextLevel(id: string): Level | undefined {
   return LEVELS[LEVELS.findIndex((l) => l.id === id) + 1];
 }
-
-/** A level is playable when it is the first one or the previous one has been completed. */
-export function isUnlocked(id: string, completed: string[]): boolean {
-  const i = LEVELS.findIndex((l) => l.id === id);
-  return i <= 0 || completed.includes(LEVELS[i - 1].id);
-}

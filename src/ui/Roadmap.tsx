@@ -1,5 +1,5 @@
 import { pick, ui } from '../i18n';
-import { CHAPTERS, isUnlocked, LEVELS } from '../levels';
+import { CHAPTERS, LEVELS } from '../levels';
 import { SANDBOX } from '../levels/sandbox';
 import { useGame } from '../store';
 import { LangToggle } from './LangToggle';
@@ -44,27 +44,23 @@ export function Roadmap() {
             <div className="level-grid">
               {LEVELS.filter((l) => l.chapter === ch.id).map((l) => {
                 const isDone = completed.includes(l.id);
-                const unlocked = isUnlocked(l.id, completed);
-                const state = isDone ? 'done' : !unlocked ? 'locked' : l.id === nextUp?.id ? 'next' : 'open';
+                const state = isDone ? 'done' : l.id === nextUp?.id ? 'next' : 'open';
                 return (
                   <button
                     key={l.id}
                     type="button"
                     className={`level-card level-${state}`}
-                    disabled={!unlocked}
-                    title={unlocked ? undefined : ui('locked', lang)}
                     onClick={() => start(l.id)}
                   >
-                    <span className="level-id">
-                      {isDone ? '✔' : unlocked ? l.id : '🔒'}
-                    </span>
+                    <span className="level-id">{l.id}</span>
+                    {isDone && <span className="level-check">✔ {ui('completed', lang)}</span>}
+                    {state === 'next' && <span className="level-check level-suggested">▸ {ui('suggested', lang)}</span>}
                     <span className="level-title">{pick(l.title, lang)}</span>
                     <span className="level-teaches">
                       {l.teaches.map((cmd) => (
                         <code key={cmd}>{cmd}</code>
                       ))}
                     </span>
-                    {l.ci && <span className="level-flag">CI</span>}
                   </button>
                 );
               })}

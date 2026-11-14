@@ -1,18 +1,18 @@
 import { useEffect } from 'react';
-import { isUnlocked } from './levels';
+import { levelById } from './levels';
 import { SANDBOX } from './levels/sandbox';
 import { useGame } from './store';
 import { LevelView } from './ui/LevelView';
 import { Roadmap } from './ui/Roadmap';
 
-/** Open the level named in the URL (#/level/2-1), if the player has unlocked it. */
+/** Open the level named in the URL (#/level/2-1). */
 function syncFromHash(): void {
   const id = /^#\/level\/(.+)$/.exec(location.hash)?.[1];
   const game = useGame.getState();
   if (!id) {
     if (game.level) game.exit();
   } else if (game.level?.id !== id) {
-    if (id === SANDBOX.id || isUnlocked(id, game.completed)) game.start(id);
+    if (id === SANDBOX.id || levelById(id)) game.start(id);
     else history.replaceState(null, '', location.pathname + location.search);
   }
 }

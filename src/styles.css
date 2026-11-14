@@ -275,20 +275,25 @@ button:disabled {
   border-radius: 4px;
   padding: 1px 5px;
 }
-.level-flag {
+.level-check {
   position: absolute;
   top: 10px;
   right: 10px;
-  font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--warn);
-  border: 1px solid var(--warn);
-  border-radius: 4px;
-  padding: 0 4px;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-radius: 99px;
+  padding: 1px 8px;
+}
+.level-suggested {
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
 }
 .level-done {
-  border-color: rgba(141, 219, 106, 0.45);
+  border-color: var(--accent);
+  background: rgba(141, 219, 106, 0.1);
 }
 .level-done .level-id {
   color: var(--accent);
@@ -299,10 +304,6 @@ button:disabled {
 }
 .level-next .level-id {
   color: var(--accent);
-}
-.level-locked {
-  opacity: 0.45;
-  box-shadow: none;
 }
 .roadmap-foot {
   margin-top: 36px;
