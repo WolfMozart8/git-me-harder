@@ -102,30 +102,24 @@ export function LevelView() {
       </div>
 
       {celebrate && (
-        <div className="overlay" role="dialog" aria-modal="true" aria-label={ui('levelDone', lang)}>
-          <div className="modal" tabIndex={-1} ref={(el) => el?.focus()}>
-            <div className="modal-icon" aria-hidden>
-              🥝
-            </div>
-            <h2>{ui('levelDone', lang)}</h2>
-            <p>
-              {level.id} · {pick(level.title, lang)}
-            </p>
-            {!next && <p className="all-done">{ui('allDone', lang)}</p>}
-            <div className="modal-actions">
-              {next && (
-                <button type="button" className="btn btn-primary" onClick={() => start(next.id)}>
-                  {ui('next', lang)} →
-                </button>
-              )}
-              <button type="button" className="btn" onClick={exit}>
-                {ui('backToMap', lang)}
+        <div className="complete-bar" role="status">
+          <span className="complete-text">
+            <span aria-hidden>🥝</span> <strong>{ui('levelDone', lang)}</strong>
+            <span className="hide-sm"> {next ? ui('levelDoneHint', lang) : ui('allDone', lang)}</span>
+          </span>
+          <span className="complete-actions">
+            {next && (
+              <button type="button" className="btn btn-primary" onClick={() => start(next.id)}>
+                {ui('next', lang)} →
               </button>
-              <button type="button" className="btn btn-ghost" onClick={dismiss}>
-                {ui('keepPlaying', lang)}
-              </button>
-            </div>
-          </div>
+            )}
+            <button type="button" className="btn" onClick={exit}>
+              {ui('backToMap', lang)}
+            </button>
+            <button type="button" className="btn btn-ghost" aria-label={ui('close', lang)} onClick={dismiss}>
+              ✕
+            </button>
+          </span>
         </div>
       )}
     </div>

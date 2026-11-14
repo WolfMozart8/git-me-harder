@@ -844,7 +844,34 @@ button:disabled {
   text-overflow: ellipsis;
 }
 
-/* ---------- level complete ---------- */
+/* ---------- level complete: a bar that never covers the terminal ---------- */
+.complete-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: linear-gradient(90deg, rgba(141, 219, 106, 0.22), rgba(141, 219, 106, 0.08)), var(--panel);
+  border-top: 2px solid var(--accent);
+  animation: rise 0.3s ease-out;
+}
+@keyframes rise {
+  from {
+    transform: translateY(100%);
+  }
+}
+.complete-text strong {
+  color: var(--accent);
+}
+.complete-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ---------- dialogs ---------- */
 .overlay {
   position: fixed;
   inset: 0;
