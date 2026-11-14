@@ -65,6 +65,8 @@ interface GameState extends Saved {
   celebrate: boolean;
   /** Text queued to be typed into the terminal (clicking a command in the chat). */
   pendingInput: string | null;
+  /** Id of the concept explanation currently open, if any. */
+  concept: string | null;
 
   start: (id: string) => void;
   exit: () => void;
@@ -78,6 +80,7 @@ interface GameState extends Saved {
   open: (path: string | null) => void;
   dismiss: () => void;
   typeInTerminal: (text: string | null) => void;
+  showConcept: (id: string | null) => void;
   setLang: (lang: Lang) => void;
   setManual: (manual: boolean) => void;
   resetProgress: () => void;
@@ -126,6 +129,7 @@ export const useGame = create<GameState>((set, get) => {
     openFile: null,
     celebrate: false,
     pendingInput: null,
+    concept: null,
 
     start: (id) => {
       const level = id === SANDBOX.id ? SANDBOX : levelById(id);
@@ -148,7 +152,7 @@ export const useGame = create<GameState>((set, get) => {
 
     exit: () => {
       setHash(null);
-      set({ level: null, session: null, term: [], celebrate: false });
+      set({ level: null, session: null, term: [], celebrate: false, concept: null });
     },
 
     run: (line) => {
@@ -202,6 +206,7 @@ export const useGame = create<GameState>((set, get) => {
     open: (path) => set({ openFile: path }),
     dismiss: () => set({ celebrate: false }),
     typeInTerminal: (text) => set({ pendingInput: text }),
+    showConcept: (id) => set({ concept: id }),
 
     setLang: (lang) => {
       set({ lang });

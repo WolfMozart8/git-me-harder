@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { CHARACTERS, pick, ui } from '../i18n';
+import { conceptsFor } from '../levels/concepts';
 import { useGame } from '../store';
 import { Rich } from './rich';
 
@@ -9,6 +10,8 @@ export function Mission() {
   const session = useGame((s) => s.session!);
   const hintsShown = useGame((s) => s.hintsShown);
   const showHint = useGame((s) => s.showHint);
+  const showConcept = useGame((s) => s.showConcept);
+  const concepts = conceptsFor(level);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,6 +62,19 @@ export function Mission() {
               );
             })}
           </ol>
+        </div>
+      )}
+
+      {concepts.length > 0 && (
+        <div className="whatis">
+          <h3 title={ui('whatIsHelp', lang)}>{ui('whatIs', lang)}</h3>
+          <div className="concept-chips">
+            {concepts.map((c) => (
+              <button key={c.id} type="button" className="chip" onClick={() => showConcept(c.id)}>
+                {c.title}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

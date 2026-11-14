@@ -3,6 +3,7 @@ import { pick, ui, type UiKey } from '../i18n';
 import { CHAPTERS, nextLevel } from '../levels';
 import { useGame } from '../store';
 import { CommitGraph } from './CommitGraph';
+import { ConceptDialog } from './ConceptDialog';
 import { EditorPanel } from './EditorPanel';
 import { LangToggle } from './LangToggle';
 import { Mission } from './Mission';
@@ -21,6 +22,7 @@ export function LevelView() {
   const dismiss = useGame((s) => s.dismiss);
   const conflicts = session.world.local.conflicts.length;
   const pendingInput = useGame((s) => s.pendingInput);
+  const showConcept = useGame((s) => s.showConcept);
 
   const [side, setSide] = useState<Side>('editor');
   const [tab, setTab] = useState<MobileTab>('mission');
@@ -71,6 +73,9 @@ export function LevelView() {
               {session.done.length}/{level.objectives.length}
             </span>
           )}
+          <button type="button" className="btn btn-ghost" title={ui('whatIsHelp', lang)} onClick={() => showConcept('status')}>
+            📖 <span className="hide-sm">{ui('glossary', lang)}</span>
+          </button>
           <button type="button" className="btn btn-ghost" onClick={() => start(level.id)}>
             ↺ <span className="hide-sm">{ui('restart', lang)}</span>
           </button>
@@ -106,6 +111,8 @@ export function LevelView() {
           <div className="side-body">{side === 'editor' ? <EditorPanel /> : <CommitGraph />}</div>
         </section>
       </div>
+
+      <ConceptDialog />
 
       {celebrate && (
         <div className="complete-bar" role="status">
