@@ -75,6 +75,7 @@ export const chapter5: Level[] = [
       ),
     ],
     setup: (w) => withOrigin(w),
+    expects: [{ file: 'wishlist.js', cmd: 'echo "function addToWishlist() {}" > wishlist.js' }],
     objectives: [
       obj('branch', 'Crea la rama `wishlist` con al menos un commit', 'Create the `wishlist` branch with at least one commit', (g) => g.branch === 'wishlist' && g.clean && (mine(g) || []).length > 0),
       obj('push', 'Súbela a `origin` dejándola enlazada (`-u`)', 'Push it to `origin` with tracking (`-u`)', (g) => !!g.head && g.origin?.branches.wishlist === g.head.hash && g.repo.upstream.wishlist === 'origin/wishlist'),

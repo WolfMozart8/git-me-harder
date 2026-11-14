@@ -20,6 +20,7 @@ export const chapter3: Level[] = [
       ),
     ],
     setup: (w) => localBase(w),
+    expects: [{ file: 'login.js', cmd: 'echo "function login() {}" > login.js' }],
     objectives: [
       obj('branch', 'Crea la rama `login` y cámbiate a ella', 'Create the `login` branch and switch to it', (g) => g.branch === 'login'),
       obj('commit', 'Haz un commit en `login` (que no esté en `main`)', 'Make a commit on `login` (not on `main`)', (g) =>

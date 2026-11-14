@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { findConflicts, getStatus, headTree } from '../engine';
 import { pick, ui } from '../i18n';
-import { isManual, useGame } from '../store';
+import { isManual, useGame, validFileName } from '../store';
+import { Rich } from './rich';
 import { CodeEditor } from './CodeEditor';
 
 export function EditorPanel() {
@@ -15,6 +17,8 @@ export function EditorPanel() {
   const applyResolution = useGame((s) => s.applyResolution);
   const resolve = useGame((s) => s.resolve);
   const setManual = useGame((s) => s.setManual);
+  const createFile = useGame((s) => s.createFile);
+  const [newName, setNewName] = useState<string | null>(null);
 
   const files = Object.keys(repo.workdir).sort();
   const st = getStatus(repo);
@@ -32,12 +36,19 @@ export function EditorPanel() {
   const base = openFile && repo.initialized ? headTree(repo)[openFile] : undefined;
   const conflicts = content !== undefined ? findConflicts(content) : [];
   const edits = (level.edits ?? []).map((e, index) => ({ ...e, index })).filter((e) => e.file === openFile);
+  const missing = (level.expects ?? []).filter((e) => !(e.file in repo.workdir));
+  const submitNew = () => {
+    if (newName && validFileName(newName)) {
+      createFile(newName);
+      setNewName(null);
+    }
+  };
   const resolution = openFile ? level.resolutions?.[openFile] : undefined;
 
   return (
     <div className="editor-panel">
       <div className="file-tabs" role="tablist">
-        {files.length === 0 && <span className="empty-note">{ui('noFiles', lang)}</span>}
+        {files.length === 0 && !missing.length && newName === null && <span className="empty-note">{ui('noFiles', lang)}</span>}
         {files.map((f) => {
           const b = badge(f);
           return (
@@ -47,7 +58,48 @@ export function EditorPanel() {
             </button>
           );
         })}
+        {missing.map((e) => (
+          <button key={e.file} type="button" className="file-tab file-missing" title={ui('createHere', lang)} onClick={() => createFile(e.file)}>
+            + {e.file} <span className="file-badge">{ui('missing', lang)}</span>
+          </button>
+        ))}
+        {newName === null ? (
+          <button type="button" className="file-tab file-new" title={ui('newFile', lang)} aria-label={ui('newFile', lang)} onClick={() => setNewName('')}>
+            +
+          </button>
+        ) : (
+          <input
+            className={`file-name-input ${newName && !validFileName(newName) ? 'invalid' : ''}`}
+            autoFocus
+            value={newName}
+            placeholder={ui('fileName', lang)}
+            aria-label={ui('fileName', lang)}
+            spellCheck={false}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') submitNew();
+              if (e.key === 'Escape') setNewName(null);
+            }}
+            onBlur={() => (newName ? submitNew() : setNewName(null))}
+          />
+        )}
       </div>
+
+      {missing.map((e) => (
+        <div key={e.file} className="edit-card missing-card">
+          <div>
+            <div className="edit-title">
+              📄 {ui('missingFile', lang)} <code className="code">{e.file}</code>
+            </div>
+            <div className="missing-how">
+              {ui('createInTerminal', lang)} <Rich text={'`' + e.cmd + '`'} />
+            </div>
+          </div>
+          <button type="button" className="btn btn-ghost" onClick={() => createFile(e.file)}>
+            {ui('createHere', lang)}
+          </button>
+        </div>
+      ))}
 
       <label className={`manual-toggle ${manual ? 'on' : ''}`}>
         <input type="checkbox" role="switch" checked={manual} onChange={(e) => setManual(e.target.checked)} />

@@ -20,6 +20,7 @@ export function LevelView() {
   const exit = useGame((s) => s.exit);
   const dismiss = useGame((s) => s.dismiss);
   const conflicts = session.world.local.conflicts.length;
+  const pendingInput = useGame((s) => s.pendingInput);
 
   const [side, setSide] = useState<Side>('editor');
   const [tab, setTab] = useState<MobileTab>('mission');
@@ -28,6 +29,11 @@ export function LevelView() {
   useEffect(() => {
     if (conflicts) setSide('editor');
   }, [conflicts]);
+
+  // a command clicked anywhere lands in the terminal: show it on small screens
+  useEffect(() => {
+    if (pendingInput !== null) setTab('terminal');
+  }, [pendingInput]);
 
   const chapter = CHAPTERS.find((c) => c.id === level.chapter);
   const next = nextLevel(level.id);

@@ -49,8 +49,8 @@ export const chapter2: Level[] = [
         'Before something bad happens: the `.env` file has secrets and `.log` files are junk. None of them must ever get into the repository.',
       ),
       guide(
-        'Un archivo `.gitignore` lista lo que git debe ignorar, un patrón por línea. Puedes crearlo desde la terminal: `echo ".env" > .gitignore` crea el archivo y `echo "*.log" >> .gitignore` le añade otra línea.',
-        'A `.gitignore` file lists what git should ignore, one pattern per line. You can create it from the terminal: `echo ".env" > .gitignore` creates the file and `echo "*.log" >> .gitignore` appends another line.',
+        'Un archivo `.gitignore` lista lo que git debe ignorar, un patrón por línea. Puedes crearlo desde la terminal: `echo ".env" > .gitignore` crea el archivo y `echo "*.log" >> .gitignore` le añade otra línea. Si prefieres, también puedes crearlo y escribirlo en el editor.',
+        'A `.gitignore` file lists what git should ignore, one pattern per line. You can create it from the terminal: `echo ".env" > .gitignore` creates the file and `echo "*.log" >> .gitignore` appends another line. If you prefer, you can also create it and type it in the editor.',
       ),
     ],
     setup: (w) => {
@@ -58,6 +58,7 @@ export const chapter2: Level[] = [
       write(w, '.env', 'API_KEY=sk-kiwi-123456\n');
       write(w, 'debug.log', '[12:01] started\n[12:02] crashed\n');
     },
+    expects: [{ file: '.gitignore', cmd: 'echo ".env" > .gitignore' }],
     objectives: [
       obj('ignore', 'Crea un `.gitignore` que ignore `.env` y los `.log`', 'Create a `.gitignore` that ignores `.env` and `.log` files', (g) => g.file('.gitignore') !== undefined && !untracked(g).some((p) => p === '.env' || p.endsWith('.log'))),
       obj('commit', 'Haz commit del `.gitignore`', 'Commit the `.gitignore`', (g) => g.clean && !!g.head && '.gitignore' in g.head.tree && !('.env' in g.head.tree) && !('debug.log' in g.head.tree)),
