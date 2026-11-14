@@ -63,3 +63,41 @@ export function mergeTrees(base: Tree, ours: Tree, theirs: Tree, labels: { ours:
   }
   return { tree, conflicts };
 }
+
+export type ConflictChoice = 'ours' | 'theirs' | 'both';
+
+export interface ConflictBlock {
+  /** 1-based line numbers of the `<<<<<<<`, `=======` and `>>>>>>>` markers. */
+  start: number;
+  mid: number;
+  end: number;
+}
+
+export function findConflicts(text: string): ConflictBlock[] {
+  const blocks: ConflictBlock[] = [];
+  let start = 0;
+  let mid = 0;
+  text.split('\n').forEach((line, i) => {
+    if (line.startsWith('<<<<<<<')) [start, mid] = [i + 1, 0];
+    else if (line.startsWith('=======') && start) mid = i + 1;
+    else if (line.startsWith('>>>>>>>') && start && mid) {
+      blocks.push({ start, mid, end: i + 1 });
+      start = 0;
+    }
+  });
+  return blocks;
+}
+
+/** Resolve one conflict block (or all of them) by keeping one side or both. */
+export function resolveConflicts(text: string, choice: ConflictChoice, blockIndex?: number): string {
+  const lines = text.split('\n');
+  const blocks = findConflicts(text);
+  const targets = blockIndex === undefined ? blocks : blocks.slice(blockIndex, blockIndex + 1);
+  for (const b of [...targets].reverse()) {
+    const ours = lines.slice(b.start, b.mid - 1);
+    const theirs = lines.slice(b.mid, b.end - 1);
+    const keep = choice === 'ours' ? ours : choice === 'theirs' ? theirs : [...ours, ...theirs];
+    lines.splice(b.start - 1, b.end - b.start + 1, ...keep);
+  }
+  return lines.join('\n');
+}

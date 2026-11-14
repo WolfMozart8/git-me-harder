@@ -127,6 +127,7 @@ export function resolveRef(repo: Repo, ref: string): string | undefined {
   else if (repo.branches[base]) hash = repo.branches[base];
   else if (repo.remoteRefs[base]) hash = repo.remoteRefs[base];
   else if (repo.tags[base]) hash = repo.tags[base];
+  else if (/^(HEAD|@)@\{\d+\}$/.test(base)) hash = repo.reflog[parseInt(base.split('{')[1], 10)]?.hash;
   else if (/^stash@\{\d+\}$/.test(base)) return undefined;
   else if (/^[0-9a-f]{4,40}$/.test(base)) {
     const found = Object.keys(repo.commits).filter((h) => h.startsWith(base));
