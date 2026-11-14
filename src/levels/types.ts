@@ -26,6 +26,8 @@ export interface GameView {
   branch: string | undefined;
   /** True when nothing is staged, modified or in conflict. */
   clean: boolean;
+  /** Every command the player ran so far, as argv, oldest first. */
+  history: string[][];
   /** Did the player run a command starting with these words? e.g. ran('git status') */
   ran: (prefix: string) => boolean;
   /** Content of a file in the working directory. */

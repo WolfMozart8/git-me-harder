@@ -1,0 +1,66 @@
+import type { L } from './levels';
+
+export type Lang = 'es' | 'en';
+
+const UI = {
+  tagline: { es: 'Aprende git sobreviviendo a tu primer trabajo', en: 'Learn git by surviving your first job' },
+  roadmap: { es: 'Mapa', en: 'Roadmap' },
+  chapter: { es: 'Capítulo', en: 'Chapter' },
+  sandbox: { es: 'Modo libre', en: 'Sandbox' },
+  sandboxBlurb: { es: 'Una terminal sin objetivos para practicar lo que quieras.', en: 'A terminal with no objectives to practice whatever you want.' },
+  progress: { es: 'niveles completados', en: 'levels completed' },
+  resetProgress: { es: 'Borrar progreso', en: 'Reset progress' },
+  confirmReset: { es: '¿Seguro que quieres borrar todo tu progreso?', en: 'Are you sure you want to erase all your progress?' },
+  locked: { es: 'Completa el nivel anterior', en: 'Complete the previous level' },
+  mission: { es: 'Misión', en: 'Mission' },
+  terminal: { es: 'Terminal', en: 'Terminal' },
+  editor: { es: 'Editor', en: 'Editor' },
+  graph: { es: 'Grafo', en: 'Graph' },
+  objectives: { es: 'Objetivos', en: 'Objectives' },
+  hint: { es: 'Pedir una pista', en: 'Ask for a hint' },
+  nextHint: { es: 'Otra pista', en: 'Another hint' },
+  noMoreHints: { es: 'No hay más pistas', en: 'No more hints' },
+  hints: { es: 'Pistas', en: 'Hints' },
+  restart: { es: 'Reiniciar nivel', en: 'Restart level' },
+  levelDone: { es: '¡Nivel completado!', en: 'Level complete!' },
+  next: { es: 'Siguiente nivel', en: 'Next level' },
+  backToMap: { es: 'Volver al mapa', en: 'Back to roadmap' },
+  keepPlaying: { es: 'Seguir aquí', en: 'Stay here' },
+  allDone: { es: '¡Has terminado todos los niveles!', en: 'You finished every level!' },
+  noFiles: { es: 'La carpeta está vacía.', en: 'The folder is empty.' },
+  noFileOpen: { es: 'Elige un archivo para abrirlo.', en: 'Pick a file to open it.' },
+  suggested: { es: 'Cambio sugerido', en: 'Suggested change' },
+  apply: { es: 'Aplicar', en: 'Apply' },
+  applied: { es: 'Aplicado', en: 'Applied' },
+  conflict: { es: 'Conflicto', en: 'Conflict' },
+  acceptOurs: { es: 'Aceptar el mío', en: 'Accept ours' },
+  acceptTheirs: { es: 'Aceptar el suyo', en: 'Accept theirs' },
+  acceptBoth: { es: 'Aceptar ambos', en: 'Accept both' },
+  manualConflict: { es: 'Conflicto sin resolver: edita el archivo a mano y borra los marcadores.', en: 'Unresolved conflict: edit the file by hand and delete the markers.' },
+  noRepo: { es: 'Todavía no hay repositorio aquí.', en: 'There is no repository here yet.' },
+  noCommits: { es: 'El repositorio aún no tiene commits.', en: 'The repository has no commits yet.' },
+  server: { es: 'Servidor (origin)', en: 'Server (origin)' },
+  notFetched: { es: 'sin descargar', en: 'not fetched' },
+  local: { es: 'Tu repositorio', en: 'Your repository' },
+  ciRunning: { es: 'Pipeline de CI en marcha…', en: 'CI pipeline running…' },
+  typeHere: { es: 'escribe un comando…', en: 'type a command…' },
+  termWelcome: { es: 'Escribe `help` para ver los comandos disponibles.', en: 'Type `help` to see the available commands.' },
+  modeGuided: { es: 'guiado', en: 'guided' },
+  modeManual: { es: 'manual', en: 'manual' },
+  legendAdded: { es: 'añadido', en: 'added' },
+  legendModified: { es: 'modificado', en: 'modified' },
+  legendDeleted: { es: 'borrado', en: 'deleted' },
+} satisfies Record<string, L>;
+
+export type UiKey = keyof typeof UI;
+
+export const ui = (key: UiKey, lang: Lang): string => UI[key][lang];
+export const pick = (text: L, lang: Lang): string => text[lang];
+
+export const CHARACTERS: Record<string, { name: string; role: L; avatar: string; color: string }> = {
+  boss: { name: 'Marta', role: { es: 'CTO', en: 'CTO' }, avatar: '👩‍💼', color: '#f2b84b' },
+  diego: { name: 'Diego', role: { es: 'Backend', en: 'Backend' }, avatar: '🧑‍💻', color: '#6cb6ff' },
+  sofia: { name: 'Sofía', role: { es: 'Frontend', en: 'Frontend' }, avatar: '👩‍🎨', color: '#e58fd8' },
+  ci: { name: 'CI Bot', role: { es: 'Pipeline', en: 'Pipeline' }, avatar: '🤖', color: '#9aa7b8' },
+  guide: { name: 'Kiwi', role: { es: 'Guía', en: 'Guide' }, avatar: '🥝', color: '#8ddb6a' },
+};

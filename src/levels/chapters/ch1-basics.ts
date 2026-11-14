@@ -24,7 +24,11 @@ export const chapter1: Level[] = [
     },
     objectives: [
       obj('init', 'Crea el repositorio con `git init`', 'Create the repository with `git init`', (g) => g.repo.initialized),
-      obj('status', 'Mira el estado con `git status`', 'Check the state with `git status`', (g) => g.ran('git status')),
+      obj('status', 'Mira el estado con `git status`', 'Check the state with `git status`', (g) => {
+        // only a status run *after* the repository exists counts
+        const cmds = g.history.map((argv) => argv.slice(0, 2).join(' '));
+        return cmds.lastIndexOf('git status') > cmds.indexOf('git init');
+      }),
     ],
     hints: [
       t('Git todavía no conoce esta carpeta. Hay un comando para "iniciar" un repositorio.', "Git doesn't know this folder yet. There's a command to \"initialize\" a repository."),

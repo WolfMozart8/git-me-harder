@@ -49,6 +49,7 @@ export function viewOf(session: Session): GameView {
     head: head ? repo.commits[head] : undefined,
     branch: currentBranch(repo),
     clean: !st.staged.length && !st.unstaged.length && !st.unmerged.length && !repo.op,
+    history: session.history,
     ran: (prefix) => {
       const want = prefix.split(' ');
       return session.history.some((argv) => want.every((w, i) => argv[i] === w));
@@ -77,7 +78,7 @@ export function evaluate(session: Session, level: Level): void {
       changed = true;
     }
   }
-  if (!session.completed && session.done.length === level.objectives.length) {
+  if (!session.completed && level.objectives.length > 0 && session.done.length === level.objectives.length) {
     session.completed = true;
     if (level.outro) session.chat.push(...level.outro);
   }
@@ -122,10 +123,14 @@ const BOSS_ON_FAIL: Record<string, ChatMessage['text']> = {
   },
 };
 
-/** Run the pipeline for a push and report it in the chat. */
-export async function runPipeline(session: Session, level: Level, hash: string, executor: TestExecutor): Promise<CiResult> {
+/** Run the pipeline for a pushed commit. Does not touch the session. */
+export function computeCi(session: Session, level: Level, hash: string, executor: TestExecutor): Promise<CiResult> {
   const tree = Object.values(session.world.remotes).find((r) => r.commits[hash])?.commits[hash].tree ?? {};
-  const ci = await runCi(tree, level.ci!, hash, executor);
+  return runCi(tree, level.ci!, hash, executor);
+}
+
+/** Record a pipeline result: chat messages (the boss is not happy when it fails) and objectives. */
+export function applyCi(session: Session, level: Level, ci: CiResult): void {
   session.ci = ci;
   const failed = ci.stages.find((s) => !s.ok);
   if (failed) {
@@ -139,6 +144,11 @@ export async function runPipeline(session: Session, level: Level, hash: string, 
     session.chat.push({ from: 'ci', tone: 'happy', text: { es: '✅ Pipeline en verde. Desplegado a producción.', en: '✅ Pipeline is green. Deployed to production.' } });
   }
   evaluate(session, level);
+}
+
+export async function runPipeline(session: Session, level: Level, hash: string, executor: TestExecutor): Promise<CiResult> {
+  const ci = await computeCi(session, level, hash, executor);
+  applyCi(session, level, ci);
   return ci;
 }
 
