@@ -1,6 +1,6 @@
 import { findConflicts, getStatus, headTree } from '../engine';
 import { pick, ui } from '../i18n';
-import { useGame } from '../store';
+import { isManual, useGame } from '../store';
 import { CodeEditor } from './CodeEditor';
 
 export function EditorPanel() {
@@ -8,10 +8,13 @@ export function EditorPanel() {
   const level = useGame((s) => s.level!);
   const repo = useGame((s) => s.session!.world.local);
   const openFile = useGame((s) => s.openFile);
+  const manual = useGame((s) => isManual(s.level!, s.manualPref));
   const open = useGame((s) => s.open);
   const edit = useGame((s) => s.edit);
   const applyEdit = useGame((s) => s.applyEdit);
+  const applyResolution = useGame((s) => s.applyResolution);
   const resolve = useGame((s) => s.resolve);
+  const setManual = useGame((s) => s.setManual);
 
   const files = Object.keys(repo.workdir).sort();
   const st = getStatus(repo);
@@ -29,6 +32,7 @@ export function EditorPanel() {
   const base = openFile && repo.initialized ? headTree(repo)[openFile] : undefined;
   const conflicts = content !== undefined ? findConflicts(content) : [];
   const edits = (level.edits ?? []).map((e, index) => ({ ...e, index })).filter((e) => e.file === openFile);
+  const resolution = openFile ? level.resolutions?.[openFile] : undefined;
 
   return (
     <div className="editor-panel">
@@ -45,31 +49,53 @@ export function EditorPanel() {
         })}
       </div>
 
-      {level.editMode === 'guided' &&
-        edits.map((e) => {
-          const applicable = content?.includes(e.find);
-          const applied = !applicable && content?.includes(e.replace);
-          return (
-            <div key={e.index} className="edit-card">
-              <div>
-                <div className="edit-title">
-                  {ui('suggestedEdit', lang)}: {pick(e.note, lang)}
-                </div>
-                <div className="edit-diff">
-                  <span className="ansi-31">- {e.find.trim()}</span>
-                  <span className="ansi-32">+ {e.replace.trim()}</span>
-                </div>
+      <label className={`manual-toggle ${manual ? 'on' : ''}`}>
+        <input type="checkbox" role="switch" checked={manual} onChange={(e) => setManual(e.target.checked)} />
+        <span className="switch" aria-hidden />
+        <span className="manual-label">
+          <strong>✍ {ui('manualOn', lang)}</strong>
+          <span>{ui(manual ? 'manualOnHelp' : 'manualOffHelp', lang)}</span>
+        </span>
+      </label>
+
+      {edits.map((e) => {
+        const applicable = content?.includes(e.find);
+        const applied = !applicable && content?.includes(e.replace);
+        return (
+          <div key={e.index} className={`edit-card ${applied ? 'edit-done' : ''}`}>
+            <div>
+              <div className="edit-title">
+                {applied && '✔ '}
+                {ui(manual ? 'toDo' : 'suggestedEdit', lang)}: {pick(e.note, lang)}
               </div>
+              <div className="edit-diff">
+                <span className="ansi-31">- {e.find.trim()}</span>
+                <span className="ansi-32">+ {e.replace.trim()}</span>
+              </div>
+            </div>
+            {!manual && (
               <button type="button" className="btn" disabled={!applicable} onClick={() => applyEdit(e.index)}>
                 {applied ? ui('applied', lang) : ui('apply', lang)}
               </button>
-            </div>
-          );
-        })}
+            )}
+          </div>
+        );
+      })}
 
       {openFile &&
         conflicts.length > 0 &&
-        (level.editMode === 'guided' ? (
+        (manual ? (
+          <div className="edit-card conflict-card">
+            <div className="edit-title">⚠ {ui('manualConflict', lang)}</div>
+          </div>
+        ) : resolution !== undefined ? (
+          <div className="edit-card conflict-card">
+            <div className="edit-title">⚠ {ui('conflict', lang)}</div>
+            <button type="button" className="btn" onClick={() => applyResolution(openFile)}>
+              {ui('resolveForMe', lang)}
+            </button>
+          </div>
+        ) : (
           conflicts.map((b, i) => (
             <div key={i} className="edit-card conflict-card">
               <div className="edit-title">
@@ -88,10 +114,6 @@ export function EditorPanel() {
               </div>
             </div>
           ))
-        ) : (
-          <div className="edit-card conflict-card">
-            <div className="edit-title">⚠ {ui('manualConflict', lang)}</div>
-          </div>
         ))}
 
       <div className="editor-body">
@@ -106,7 +128,6 @@ export function EditorPanel() {
         <span><i className="dot dot-added" /> {ui('legendAdded', lang)}</span>
         <span><i className="dot dot-modified" /> {ui('legendModified', lang)}</span>
         <span><i className="dot dot-deleted" /> {ui('legendDeleted', lang)}</span>
-        <span className="mode">{ui(level.editMode === 'guided' ? 'modeGuided' : 'modeManual', lang)}</span>
       </div>
     </div>
   );

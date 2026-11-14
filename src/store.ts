@@ -1,17 +1,7 @@
 import { create } from 'zustand';
 import { c, currentBranch, resolveConflicts, short, type ConflictChoice, type Repo } from './engine';
 import type { Lang } from './i18n';
-import {
-  applyCi,
-  applyGuidedEdit,
-  computeCi,
-  createSession,
-  editFile,
-  levelById,
-  runLine,
-  type Level,
-  type Session,
-} from './levels';
+import { applyCi, applyGuidedEdit, computeCi, createSession, editFile, levelById, runLine, type Level, type Session } from './levels';
 import { SANDBOX } from './levels/sandbox';
 import { workerExecutor } from './ui/ciExecutor';
 
@@ -20,6 +10,8 @@ const STORAGE_KEY = 'git-me-harder:v1';
 interface Saved {
   lang: Lang;
   completed: string[];
+  /** Player's choice for manual editing; null = use each level's default. */
+  manualPref: boolean | null;
 }
 
 function load(): Saved {
@@ -28,15 +20,16 @@ function load(): Saved {
     return {
       lang: raw.lang === 'en' || raw.lang === 'es' ? raw.lang : navigator.language.startsWith('es') ? 'es' : 'en',
       completed: Array.isArray(raw.completed) ? raw.completed.filter((x: unknown) => typeof x === 'string') : [],
+      manualPref: typeof raw.manualPref === 'boolean' ? raw.manualPref : null,
     };
   } catch {
-    return { lang: 'es', completed: [] };
+    return { lang: 'es', completed: [], manualPref: null };
   }
 }
 
 function save(data: Saved): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ lang: data.lang, completed: data.completed, manualPref: data.manualPref }));
   } catch {
     // storage unavailable (private mode): the game still works, progress just is not kept
   }
@@ -55,6 +48,12 @@ export function promptOf(repo: Repo): string {
   return `kiwi-market (${where}${state})`;
 }
 
+/** Manual mode: no one-click helpers, the player types the code. Hard levels default to it. */
+export const isManual = (level: Level, pref: boolean | null): boolean => pref ?? level.editMode === 'manual';
+
+/** A file name the simulated folder can hold (flat, no spaces). */
+export const validFileName = (name: string): boolean => /^[\w.-]+$/.test(name) && name !== '.' && name !== '..' && name !== '.git';
+
 interface GameState extends Saved {
   level: Level | null;
   session: Session | null;
@@ -62,7 +61,7 @@ interface GameState extends Saved {
   hintsShown: number;
   ciRunning: boolean;
   openFile: string | null;
-  /** Show the "level complete" banner. */
+  /** Show the "level complete" bar. */
   celebrate: boolean;
   /** Text queued to be typed into the terminal (clicking a command in the chat). */
   pendingInput: string | null;
@@ -71,13 +70,16 @@ interface GameState extends Saved {
   exit: () => void;
   run: (line: string) => void;
   edit: (path: string, content: string) => void;
+  createFile: (path: string) => void;
   applyEdit: (index: number) => void;
+  applyResolution: (path: string) => void;
   resolve: (path: string, choice: ConflictChoice, block: number) => void;
   showHint: () => void;
   open: (path: string | null) => void;
   dismiss: () => void;
   typeInTerminal: (text: string | null) => void;
   setLang: (lang: Lang) => void;
+  setManual: (manual: boolean) => void;
   resetProgress: () => void;
 }
 
@@ -90,28 +92,28 @@ function setHash(levelId: string | null): void {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export const useGame = create<GameState>((set, get) => {
+  const persist = () => save(get());
+
   /** Apply a mutation to a copy of the session, then publish it (and record completion). */
   const mutate = (fn: (session: Session, level: Level) => void, extra: Partial<GameState> = {}) => {
-    const { session: current, level, completed, lang } = get();
+    const { session: current, level, completed } = get();
     if (!current || !level) return;
     const session = structuredClone(current);
     fn(session, level);
     const patch: Partial<GameState> = { session, ...extra };
     if (session.completed && !current.completed) {
       patch.celebrate = true;
-      if (!completed.includes(level.id)) {
-        patch.completed = [...completed, level.id];
-        save({ lang, completed: patch.completed });
-      }
+      if (!completed.includes(level.id)) patch.completed = [...completed, level.id];
     }
     // keep the open file valid; open a conflicted file automatically
     const files = Object.keys(session.world.local.workdir);
-    const open = get().openFile;
+    const open = patch.openFile ?? get().openFile;
     const newConflict = session.world.local.conflicts.find((p) => !current.world.local.conflicts.includes(p));
     if (newConflict) patch.openFile = newConflict;
     else if (open && !files.includes(open)) patch.openFile = files.sort()[0] ?? null;
     else if (!open && files.length) patch.openFile = files.sort()[0];
     set(patch);
+    if (patch.completed) persist();
   };
 
   return {
@@ -171,7 +173,20 @@ export const useGame = create<GameState>((set, get) => {
       mutate((session, level) => editFile(session, level, path, content));
     },
 
+    createFile: (path) => {
+      const files = get().session?.world.local.workdir;
+      if (!files || !validFileName(path)) return;
+      if (path in files) return set({ openFile: path });
+      mutate((session, level) => editFile(session, level, path, ''), { openFile: path });
+    },
+
     applyEdit: (index) => mutate((session, level) => void applyGuidedEdit(session, level, index)),
+
+    applyResolution: (path) =>
+      mutate((session, level) => {
+        const content = level.resolutions?.[path];
+        if (content !== undefined) editFile(session, level, path, content);
+      }),
 
     resolve: (path, choice, block) =>
       mutate((session, level) => {
@@ -190,12 +205,17 @@ export const useGame = create<GameState>((set, get) => {
 
     setLang: (lang) => {
       set({ lang });
-      save({ lang, completed: get().completed });
+      persist();
+    },
+
+    setManual: (manual) => {
+      set({ manualPref: manual });
+      persist();
     },
 
     resetProgress: () => {
       set({ completed: [] });
-      save({ lang: get().lang, completed: [] });
+      persist();
     },
   };
 

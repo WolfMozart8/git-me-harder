@@ -74,9 +74,13 @@ export interface Level {
   objectives: Objective[];
   hints: L[];
   events?: LevelEvent[];
-  /** guided: one-click edits and conflict buttons. manual: type the code yourself. */
+  /** Default editing mode (the player can switch). guided: one-click edits and conflict buttons. manual: type the code yourself. */
   editMode: 'guided' | 'manual';
   edits?: GuidedEdit[];
+  /** Correct content of conflicted files, offered as a one-click resolution when manual mode is off. */
+  resolutions?: Record<string, string>;
+  /** Files the player is expected to create, with the terminal command that does it. */
+  expects?: { file: string; cmd: string }[];
   ci?: CiSpec;
   /** A valid way to beat the level; executed by the test-suite. */
   solution: SolutionStep[];

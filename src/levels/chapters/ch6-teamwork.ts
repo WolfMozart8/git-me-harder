@@ -25,8 +25,8 @@ export const chapter6: Level[] = [
         "Push your shipping cost change to `main`. Diego just pushed his discount on the same line of `cart.js`, so I need **both**. The final line must read exactly:\n`return sum - discount(sum) + SHIPPING;`",
       ),
       guide(
-        'Se acabaron los botones: aquí el conflicto se resuelve a mano. En el editor, borra las tres líneas de marcadores (`<<<<<<<`, `=======`, `>>>>>>>`) y deja una sola línea `return` correcta. Cada push a `main` pasa por el pipeline de CI, que ejecuta el código de verdad: si subes algo roto, producción se cae.',
-        'No more buttons: here you resolve the conflict by hand. In the editor, delete the three marker lines (`<<<<<<<`, `=======`, `>>>>>>>`) and leave a single correct `return` line. Every push to `main` goes through the CI pipeline, which really runs the code: if you push something broken, production goes down.',
+        'Este nivel viene en **modo manual**: el conflicto se resuelve escribiendo. En el editor, borra las tres líneas de marcadores (`<<<<<<<`, `=======`, `>>>>>>>`) y deja una sola línea `return` correcta. Cada push a `main` pasa por el pipeline de CI, que ejecuta el código de verdad: si subes algo roto, producción se cae. (Si te atascas, puedes apagar el modo manual en el editor.)',
+        'This level defaults to **manual mode**: you resolve the conflict by typing. In the editor, delete the three marker lines (`<<<<<<<`, `=======`, `>>>>>>>`) and leave a single correct `return` line. Every push to `main` goes through the CI pipeline, which really runs the code: if you push something broken, production goes down. (If you get stuck, you can turn manual mode off in the editor.)',
       ),
     ],
     setup: (w) => {
@@ -35,6 +35,7 @@ export const chapter6: Level[] = [
       run(w, 'git commit -am "feat: shipping cost"');
       teammate(w, { branch: 'main', author: 'Diego', message: 'feat: discount over 100', files: { 'cart.js': DISCOUNT_THEIRS } });
     },
+    resolutions: { 'cart.js': SHIPPING_MERGED },
     ci: {
       branch: 'main',
       entry: 'cart.js',
@@ -126,6 +127,7 @@ export const chapter6: Level[] = [
       write(w, 'wishlist.js', WISHLIST_WIP);
       teammate(w, { branch: 'main', author: 'Diego', message: 'feat: coupons', files: { 'coupons.js': COUPONS } });
     },
+    edits: [{ file: 'cart.js', note: t('Multiplica precio por cantidad', 'Multiply price by quantity'), find: 'item.price + item.qty', replace: 'item.price * item.qty' }],
     ci: {
       branch: 'main',
       entry: 'cart.js',
@@ -182,6 +184,7 @@ export const chapter6: Level[] = [
       run(w, 'git commit -am "feat: 10% promo"', 'git push -u origin promo');
       teammate(w, { branch: 'main', author: 'Sofía', message: 'feat: round totals', files: { 'cart.js': CART.replace('return sum;', 'return Math.round(sum);') } });
     },
+    resolutions: { 'cart.js': PROMO_MERGED },
     ci: {
       branch: 'promo',
       entry: 'cart.js',
