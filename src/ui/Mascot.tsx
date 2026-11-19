@@ -25,7 +25,7 @@ export function Mascot({ lang, label }: { lang: Lang; label: string }) {
 
   return (
     <div className="mascot">
-      <p className="mascot-bubble" aria-live="polite" key={line}>
+      <p className="mascot-bubble" key={line}>
         {pick(COMEBACKS[line], lang)}
       </p>
       <button
@@ -38,7 +38,7 @@ export function Mascot({ lang, label }: { lang: Lang; label: string }) {
           setTake((t) => t + 1);
         }}
       >
-        <svg key={take} viewBox="0 0 340 300" role="img" aria-hidden="true">
+        <svg key={take} className={take ? "m-hit" : undefined} viewBox="0 0 340 300" role="img" aria-hidden="true">
           <defs>
             <linearGradient id="gm-body" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stopColor="#ff7a52" />

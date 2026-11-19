@@ -377,6 +377,15 @@ button:disabled {
   transform-origin: top;
   animation: sweat 4s ease-in infinite;
 }
+/* after a click the cycle starts just before the hit, so the crack is immediate */
+.m-hit .m-whip,
+.m-hit .m-body,
+.m-hit .m-impact,
+.m-hit .m-lines,
+.m-hit .m-shadow,
+.m-hit .m-sweat {
+  animation-delay: -1.75s;
+}
 @keyframes whip {
   0%, 40% { transform: rotate(-38deg); }
   52% { transform: rotate(4deg); }
