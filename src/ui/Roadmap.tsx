@@ -3,6 +3,7 @@ import { CHAPTERS, LEVELS } from '../levels';
 import { SANDBOX } from '../levels/sandbox';
 import { useGame } from '../store';
 import { LangToggle } from './LangToggle';
+import { Mascot } from './Mascot';
 
 export function Roadmap() {
   const lang = useGame((s) => s.lang);
@@ -19,16 +20,46 @@ export function Roadmap() {
         <div className="hero-top">
           <LangToggle />
         </div>
-        <h1>
-          git me <span>harder</span>
-        </h1>
-        <p className="tagline">{ui('tagline', lang)}</p>
-        <div className="progress" role="progressbar" aria-valuemin={0} aria-valuemax={LEVELS.length} aria-valuenow={done}>
-          <div className="progress-bar" style={{ width: `${(done / LEVELS.length) * 100}%` }} />
+        <div className="hero-grid">
+          <div className="hero-copy">
+            <span className="warning-sticker">⚠ {ui('heroWarning', lang)}</span>
+            <h1>
+              git me <span>harder</span>
+            </h1>
+            <p className="tagline">{ui('tagline', lang)}</p>
+            <p className="pitch">{ui('heroPitch', lang)}</p>
+            <ul className="hero-chips">
+              <li>
+                <strong>{LEVELS.length}</strong> {ui('chipLevels', lang)}
+              </li>
+              <li>
+                <strong>0</strong> {ui('chipInstalls', lang)}
+              </li>
+              <li>
+                <strong>1</strong> {ui('chipBoss', lang)}
+              </li>
+            </ul>
+            <div className="hero-cta">
+              <button type="button" className="btn btn-primary btn-big" onClick={() => start(nextUp?.id ?? SANDBOX.id)}>
+                {!done ? ui('ctaStart', lang) : nextUp ? `${ui('ctaContinue', lang)}: ${nextUp.id} ${pick(nextUp.title, lang)}` : ui('sandbox', lang)} →
+              </button>
+              {nextUp && (
+                <button type="button" className="link-btn" onClick={() => start(SANDBOX.id)}>
+                  {ui('ctaFreePlay', lang)}
+                </button>
+              )}
+            </div>
+            <div className="hero-progress">
+              <div className="progress" role="progressbar" aria-valuemin={0} aria-valuemax={LEVELS.length} aria-valuenow={done}>
+                <div className="progress-bar" style={{ width: `${(done / LEVELS.length) * 100}%` }} />
+              </div>
+              <p className="progress-text">
+                {done} / {LEVELS.length} {ui('progress', lang)}
+              </p>
+            </div>
+          </div>
+          <Mascot lang={lang} label={ui('mascotLabel', lang)} />
         </div>
-        <p className="progress-text">
-          {done} / {LEVELS.length} {ui('progress', lang)}
-        </p>
       </header>
 
       <main className="chapters">
@@ -86,6 +117,7 @@ export function Roadmap() {
       </main>
 
       <footer className="roadmap-foot">
+        <p className="credit">{ui('logoCredit', lang)}</p>
         <button
           type="button"
           className="btn btn-ghost"

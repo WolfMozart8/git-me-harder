@@ -55,6 +55,10 @@ Las explicaciones de "¿Qué es…?" están en `src/levels/concepts.ts` y se aso
 
 No hay rebase interactivo ni editor de mensajes: los commits necesitan `-m`.
 
+## Créditos
+
+La mascota es un dibujo propio en SVG ([src/ui/Mascot.tsx](src/ui/Mascot.tsx)) inspirado en el logo de Git de Jason Long (CC BY 3.0). Si algún día se encarga una ilustración, basta con reemplazar ese componente.
+
 ## Despliegue
 
 `.github/workflows/deploy.yml` publica en GitHub Pages con cada push a `main`. En el repositorio de GitHub hay que elegir una vez **Settings → Pages → Source: GitHub Actions**.

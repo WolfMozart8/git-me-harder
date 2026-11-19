@@ -3,7 +3,20 @@ import type { L } from './levels';
 export type Lang = 'es' | 'en';
 
 const UI = {
-  tagline: { es: 'Aprende git sobreviviendo a tu primer trabajo', en: 'Learn git by surviving your first job' },
+  tagline: { es: 'Aprende git a base de conflictos, jefas gritonas y push rechazados.', en: 'Learn git the hard way: merge conflicts, a yelling boss and rejected pushes.' },
+  heroWarning: { es: 'Aviso: contiene conflictos de merge explícitos', en: 'Warning: contains explicit merge conflicts' },
+  heroPitch: {
+    es: 'Una terminal de verdad, una empresa de mentira y un repositorio que te va a hacer sufrir. Sin instalar nada.',
+    en: 'A real terminal, a fake company and a repository that will make you suffer. Nothing to install.',
+  },
+  chipLevels: { es: 'niveles', en: 'levels' },
+  chipInstalls: { es: 'instalaciones', en: 'installs' },
+  chipBoss: { es: 'jefa sin paciencia', en: 'boss with zero patience' },
+  ctaStart: { es: 'Empezar a sufrir', en: 'Start suffering' },
+  ctaContinue: { es: 'Continuar', en: 'Continue' },
+  ctaFreePlay: { es: 'o practica en el modo libre', en: 'or practice in sandbox mode' },
+  mascotLabel: { es: 'Darle otro latigazo', en: 'Crack the whip again' },
+  logoCredit: { es: 'Mascota inspirada en el logo de Git de Jason Long (CC BY 3.0).', en: 'Mascot inspired by the Git logo by Jason Long (CC BY 3.0).' },
   roadmap: { es: 'Mapa', en: 'Roadmap' },
   chapter: { es: 'Capítulo', en: 'Chapter' },
   sandbox: { es: 'Modo libre', en: 'Sandbox' },
